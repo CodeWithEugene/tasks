@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Task, Priority, Category } from '../types';
 import TaskItem from './TaskItem';
 import { SearchIcon, ChevronDownIcon, PlusIcon, SparklesIcon } from './icons';
-import { generateTaskFromPrompt, rewriteTaskWithAI } from '../services/geminiService';
+import { rewriteTaskWithAI } from '../services/geminiService';
 
 interface TaskPanelProps {
     tasks: Task[];
