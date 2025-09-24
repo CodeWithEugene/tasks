@@ -47,9 +47,9 @@ const App: React.FC = () => {
         setTasks(prevTasks => [newTask, ...prevTasks]);
     };
 
-    const handleUpdateTask = (updatedTask: Task) => {
-        setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
-    };
+    // const handleUpdateTask = (updatedTask: Task) => {
+    //     setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
+    // };
 
     const handleDeleteTask = (taskId: string) => {
         setTasks(tasks.filter(task => task.id !== taskId));
