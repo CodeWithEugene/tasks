@@ -22,6 +22,8 @@ const decodeJwtResponse = (token: string) => {
 const Login: React.FC<LoginProps> = ({ onSignIn }) => {
     const googleButtonRef = useRef<HTMLDivElement>(null);
 
+    console.log('Login component rendered');
+
     useEffect(() => {
         if (typeof window.google === 'undefined' || !window.google.accounts) {
             console.error("Google Identity Services script not loaded.");
