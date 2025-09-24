@@ -28,7 +28,7 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
             const newTask = {
                 title: rewrittenTask.title,
                 description: rewrittenTask.description,
-                startDate: new Date().toISOString().split('T')[0],
+                startDate: selectedDate ? selectedDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
                 priority: Priority.MEDIUM,
                 category: Category.PERSONAL,
             };
@@ -49,7 +49,7 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
         onAddTask({
             title,
             description,
-            startDate: new Date().toISOString().split('T')[0],
+            startDate: selectedDate ? selectedDate.toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
             priority: Priority.MEDIUM,
             category: Category.PERSONAL,
         });
@@ -80,6 +80,20 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
     
     return (
         <div className="space-y-6">
+            {/* Selected Date Indicator */}
+            {selectedDate && (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                        📅 Adding tasks for: <span className="font-semibold">{selectedDate.toLocaleDateString('en-US', { 
+                            weekday: 'long', 
+                            year: 'numeric', 
+                            month: 'long', 
+                            day: 'numeric' 
+                        })}</span>
+                    </p>
+                </div>
+            )}
+            
              {/* Task Creation UI */}
             <div className="space-y-4">
                  {/* Desktop Form */}
@@ -88,14 +102,14 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Type your task title and use AI to improve it ✨"
+                        placeholder={selectedDate ? `Add task for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ✨` : "Type your task title and use AI to improve it ✨"}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                     />
                     <input
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Add task details (AI will enhance both title and description)"
+                        placeholder={selectedDate ? `Task details for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : "Add task details (AI will enhance both title and description)"}
                         className="w-full hidden md:block px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                     />
                     <button type="submit" className="bg-green-600 dark:bg-green-700 text-white p-3 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors shrink-0">
@@ -121,14 +135,14 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Type your task title..."
+                            placeholder={selectedDate ? `Add task for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}...` : "Type your task title..."}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                         />
                          <input
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Add task details..."
+                            placeholder={selectedDate ? `Task details for ${selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}...` : "Add task details..."}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                         />
                         <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="w-full bg-purple-600 dark:bg-purple-700 text-white p-3 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors flex items-center justify-center disabled:bg-purple-300 dark:disabled:bg-purple-800 shrink-0 gap-2">
