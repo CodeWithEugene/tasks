@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Task, Priority, Category } from '../types';
 import TaskItem from './TaskItem';
-import { SearchIcon, ChevronDownIcon, PlusIcon, SparklesIcon } from './icons';
+import { SearchIcon, PlusIcon, SparklesIcon } from './icons';
 import { rewriteTaskWithAI } from '../services/geminiService';
 
 interface TaskPanelProps {
@@ -139,11 +139,7 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                 </div>
             </div>
             
-             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                     <button className="flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">By category <ChevronDownIcon /></button>
-                     <button className="flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">By priority <ChevronDownIcon /></button>
-                </div>
+             <div className="flex flex-col sm:flex-row items-center justify-end gap-4">
                  <div className="relative w-full sm:w-auto">
                     <input
                         type="text"
