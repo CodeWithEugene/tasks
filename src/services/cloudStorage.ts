@@ -22,8 +22,12 @@ const getUserBinId = (email: string): string => {
 };
 
 export const saveTasksToCloud = async (email: string, tasks: Task[]): Promise<boolean> => {
-    if (!JSONBIN_API_KEY) {
+    if (!JSONBIN_API_KEY || JSONBIN_API_KEY === 'your_jsonbin_api_key_here') {
         console.warn('JSONBin API key not configured. Tasks will only be saved locally.');
+        console.log('To enable cross-device sync:');
+        console.log('1. Go to https://jsonbin.io and create a free account');
+        console.log('2. Get your API key from the dashboard');
+        console.log('3. Create a .env file with: VITE_JSONBIN_API_KEY=your_actual_api_key');
         return false;
     }
 
@@ -57,7 +61,7 @@ export const saveTasksToCloud = async (email: string, tasks: Task[]): Promise<bo
 };
 
 export const loadTasksFromCloud = async (email: string): Promise<Task[] | null> => {
-    if (!JSONBIN_API_KEY) {
+    if (!JSONBIN_API_KEY || JSONBIN_API_KEY === 'your_jsonbin_api_key_here') {
         console.warn('JSONBin API key not configured. Loading tasks from local storage only.');
         return null;
     }

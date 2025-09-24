@@ -71,6 +71,7 @@ const App: React.FC = () => {
             }
             // Save to cloud if user is logged in
             if (user) {
+                console.log('Saving tasks to cloud for:', user.email);
                 saveTasksToCloud(user.email, updatedTasks);
             }
             return updatedTasks;
@@ -92,6 +93,7 @@ const App: React.FC = () => {
             }
             // Save to cloud if user is logged in
             if (user) {
+                console.log('Saving tasks to cloud for:', user.email);
                 saveTasksToCloud(user.email, updatedTasks);
             }
             return updatedTasks;
@@ -109,6 +111,7 @@ const App: React.FC = () => {
             }
             // Save to cloud if user is logged in
             if (user) {
+                console.log('Saving tasks to cloud for:', user.email);
                 saveTasksToCloud(user.email, updatedTasks);
             }
             return updatedTasks;
@@ -126,11 +129,15 @@ const App: React.FC = () => {
 
         // Load tasks from cloud storage
         try {
+            console.log('Loading tasks from cloud for:', userData.email);
             const cloudTasks = await loadTasksFromCloud(userData.email);
             if (cloudTasks !== null) {
+                console.log('Loaded tasks from cloud:', cloudTasks.length, 'tasks');
                 setTasks(cloudTasks);
                 // Update localStorage with cloud data
                 localStorage.setItem('tasks', JSON.stringify(cloudTasks));
+            } else {
+                console.log('No cloud tasks found, using local storage');
             }
         } catch (error) {
             console.error('Error loading tasks from cloud:', error);
