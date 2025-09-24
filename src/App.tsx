@@ -23,8 +23,26 @@ interface User {
 }
 
 const App: React.FC = () => {
-    const [tasks, setTasks] = useState<Task[]>(initialTasks);
-    const [user, setUser] = useState<User | null>(null);
+    const [tasks, setTasks] = useState<Task[]>(() => {
+        // Load tasks from localStorage on initialization
+        try {
+            const savedTasks = localStorage.getItem('tasks');
+            return savedTasks ? JSON.parse(savedTasks) : initialTasks;
+        } catch (error) {
+            console.error('Error loading tasks from localStorage:', error);
+            return initialTasks;
+        }
+    });
+    const [user, setUser] = useState<User | null>(() => {
+        // Load user from localStorage on initialization
+        try {
+            const savedUser = localStorage.getItem('user');
+            return savedUser ? JSON.parse(savedUser) : null;
+        } catch (error) {
+            console.error('Error loading user from localStorage:', error);
+            return null;
+        }
+    });
 
     const stats = useMemo(() => {
         const completed = tasks.filter(task => task.completed).length;
@@ -42,7 +60,16 @@ const App: React.FC = () => {
             id: new Date().toISOString(),
             completed: false,
         };
-        setTasks(prevTasks => [newTask, ...prevTasks]);
+        setTasks(prevTasks => {
+            const updatedTasks = [newTask, ...prevTasks];
+            // Save to localStorage
+            try {
+                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            } catch (error) {
+                console.error('Error saving tasks to localStorage:', error);
+            }
+            return updatedTasks;
+        });
     };
 
     // const handleUpdateTask = (updatedTask: Task) => {
@@ -50,15 +77,39 @@ const App: React.FC = () => {
     // };
 
     const handleDeleteTask = (taskId: string) => {
-        setTasks(tasks.filter(task => task.id !== taskId));
+        setTasks(prevTasks => {
+            const updatedTasks = prevTasks.filter(task => task.id !== taskId);
+            // Save to localStorage
+            try {
+                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            } catch (error) {
+                console.error('Error saving tasks to localStorage:', error);
+            }
+            return updatedTasks;
+        });
     };
 
     const handleToggleComplete = (taskId: string) => {
-        setTasks(tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task));
+        setTasks(prevTasks => {
+            const updatedTasks = prevTasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task);
+            // Save to localStorage
+            try {
+                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            } catch (error) {
+                console.error('Error saving tasks to localStorage:', error);
+            }
+            return updatedTasks;
+        });
     };
 
     const handleSignIn = (userData: User) => {
         setUser(userData);
+        // Save user to localStorage
+        try {
+            localStorage.setItem('user', JSON.stringify(userData));
+        } catch (error) {
+            console.error('Error saving user to localStorage:', error);
+        }
     };
 
     const handleSignOut = () => {
@@ -66,6 +117,12 @@ const App: React.FC = () => {
             window.google.accounts.id.disableAutoSelect();
         }
         setUser(null);
+        // Clear user from localStorage
+        try {
+            localStorage.removeItem('user');
+        } catch (error) {
+            console.error('Error removing user from localStorage:', error);
+        }
     };
     
     if (!user) {
@@ -81,7 +138,18 @@ const App: React.FC = () => {
                     tasks={tasks}
                     stats={stats}
                     onAddTask={handleAddTask}
-                    onUpdateTask={(t) => setTasks(prev => prev.map(x => x.id === t.id ? t : x))}
+                    onUpdateTask={(t) => {
+                        setTasks(prev => {
+                            const updatedTasks = prev.map(x => x.id === t.id ? t : x);
+                            // Save to localStorage
+                            try {
+                                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+                            } catch (error) {
+                                console.error('Error saving tasks to localStorage:', error);
+                            }
+                            return updatedTasks;
+                        });
+                    }}
                     onDeleteTask={handleDeleteTask}
                     onToggleComplete={handleToggleComplete}
                 />
