@@ -5,6 +5,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
 import { saveTasksToCloud, loadTasksFromCloud } from './services/cloudStorage';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 // Fix for TypeScript errors on window.google property
 declare global {
@@ -158,40 +159,46 @@ const App: React.FC = () => {
     };
     
     if (!user) {
-        return <Login onSignIn={handleSignIn} />;
+        return (
+            <ThemeProvider>
+                <Login onSignIn={handleSignIn} />
+            </ThemeProvider>
+        );
     }
     
     return (
-        <div className="min-h-screen bg-[#FBF9F6] text-[#3D3D3D] flex flex-col">
-            <Header user={user} onSignOut={handleSignOut} />
-            <main className="flex-grow container mx-auto px-4 py-8">
-                <Dashboard
-                    user={{ name: user.name }}
-                    tasks={tasks}
-                    stats={stats}
-                    onAddTask={handleAddTask}
-                    onUpdateTask={(t) => {
-                        setTasks(prev => {
-                            const updatedTasks = prev.map(x => x.id === t.id ? t : x);
-                            // Save to localStorage
-                            try {
-                                localStorage.setItem('tasks', JSON.stringify(updatedTasks));
-                            } catch (error) {
-                                console.error('Error saving tasks to localStorage:', error);
-                            }
-                            // Save to cloud if user is logged in
-                            if (user) {
-                                saveTasksToCloud(user.email, updatedTasks);
-                            }
-                            return updatedTasks;
-                        });
-                    }}
-                    onDeleteTask={handleDeleteTask}
-                    onToggleComplete={handleToggleComplete}
-                />
-            </main>
-            <Footer />
-        </div>
+        <ThemeProvider>
+            <div className="min-h-screen bg-[#FBF9F6] dark:bg-gray-900 text-[#3D3D3D] dark:text-gray-100 flex flex-col transition-colors">
+                <Header user={user} onSignOut={handleSignOut} />
+                <main className="flex-grow container mx-auto px-4 py-8">
+                    <Dashboard
+                        user={{ name: user.name }}
+                        tasks={tasks}
+                        stats={stats}
+                        onAddTask={handleAddTask}
+                        onUpdateTask={(t) => {
+                            setTasks(prev => {
+                                const updatedTasks = prev.map(x => x.id === t.id ? t : x);
+                                // Save to localStorage
+                                try {
+                                    localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+                                } catch (error) {
+                                    console.error('Error saving tasks to localStorage:', error);
+                                }
+                                // Save to cloud if user is logged in
+                                if (user) {
+                                    saveTasksToCloud(user.email, updatedTasks);
+                                }
+                                return updatedTasks;
+                            });
+                        }}
+                        onDeleteTask={handleDeleteTask}
+                        onToggleComplete={handleToggleComplete}
+                    />
+                </main>
+                <Footer />
+            </div>
+        </ThemeProvider>
     );
 };
 

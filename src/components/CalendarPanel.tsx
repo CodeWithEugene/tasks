@@ -53,11 +53,11 @@ const CalendarPanel: React.FC<CalendarPanelProps> = ({ onDateSelect, selectedDat
         if (isSelected) {
             dayClasses += 'bg-rose-400 text-white ';
         } else if (isToday) {
-            dayClasses += 'bg-black text-white ';
+            dayClasses += 'bg-black dark:bg-gray-100 text-white dark:text-gray-900 ';
         } else {
-            dayClasses += 'hover:bg-gray-200 ';
+            dayClasses += 'hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100 ';
             if (isRedDay) {
-                dayClasses += 'text-red-500 ';
+                dayClasses += 'text-red-500 dark:text-red-400 ';
             }
         }
         
@@ -72,15 +72,15 @@ const CalendarPanel: React.FC<CalendarPanelProps> = ({ onDateSelect, selectedDat
         <div className="w-full h-full flex flex-col">
             <div className="text-left mb-4">
                 <p className="font-playfair text-3xl text-[#D48A8A] italic">{today.toLocaleDateString('en-US', { weekday: 'long' })}</p>
-                <p className="text-lg font-semibold text-gray-700">{today.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                <p className="text-lg font-semibold text-gray-700 dark:text-gray-300">{today.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
             </div>
-            <div className="bg-white p-4 rounded-xl shadow-inner flex-grow">
+            <div className="bg-white dark:bg-gray-700 p-4 rounded-xl shadow-inner flex-grow transition-colors">
                 <div className="flex justify-between items-center mb-4">
-                    <button onClick={handlePrevMonth} className="p-1 rounded-full hover:bg-gray-100 transform rotate-90" aria-label="Previous month"><ChevronDownIcon /></button>
-                    <span className="font-semibold text-lg">{monthNames[month]} {year}</span>
-                    <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-gray-100 transform -rotate-90" aria-label="Next month"><ChevronDownIcon /></button>
+                    <button onClick={handlePrevMonth} className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transform rotate-90 transition-colors" aria-label="Previous month"><ChevronDownIcon /></button>
+                    <span className="font-semibold text-lg text-gray-900 dark:text-gray-100">{monthNames[month]} {year}</span>
+                    <button onClick={handleNextMonth} className="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600 transform -rotate-90 transition-colors" aria-label="Next month"><ChevronDownIcon /></button>
                 </div>
-                <div className="grid grid-cols-7 gap-y-2 text-center text-gray-500 text-xs">
+                <div className="grid grid-cols-7 gap-y-2 text-center text-gray-500 dark:text-gray-400 text-xs">
                     {daysOfWeek.map(day => <div key={day} className="font-medium">{day}</div>)}
                 </div>
                 <div className="grid grid-cols-7 gap-y-2 text-center mt-2">

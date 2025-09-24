@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { LogoIcon } from './icons';
+import ThemeToggle from './ThemeToggle';
 
 interface LoginProps {
     onSignIn: (userData: { name: string; picture: string; email: string }) => void;
@@ -65,13 +66,16 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
 
 
     return (
-        <div className="min-h-screen bg-[#FBF9F6] flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-[#FBF9F6] dark:bg-gray-900 flex flex-col items-center justify-center p-4 transition-colors">
+            <div className="absolute top-4 right-4">
+                <ThemeToggle />
+            </div>
             <div className="text-center p-8 max-w-md w-full">
                 <div className="flex items-center justify-center space-x-4 mb-8">
                     <LogoIcon className="h-12 w-12 text-[#D48A8A]" />
-                    <h1 className="font-playfair text-5xl sm:text-6xl font-bold text-[#3D3D3D]">Tasks</h1>
+                    <h1 className="font-playfair text-5xl sm:text-6xl font-bold text-[#3D3D3D] dark:text-gray-100">Tasks</h1>
                 </div>
-                <p className="text-lg text-gray-600 mb-10">Start planning today.</p>
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-10">Start planning today.</p>
                 <div ref={googleButtonRef} className="flex justify-center"></div>
             </div>
         </div>

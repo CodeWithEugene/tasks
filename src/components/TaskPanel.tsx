@@ -89,19 +89,19 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
                         placeholder="Type your task title and use AI to improve it ✨"
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                     />
                     <input
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         placeholder="Add task details (AI will enhance both title and description)"
-                        className="w-full hidden md:block px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
+                        className="w-full hidden md:block px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                     />
-                    <button type="submit" className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors shrink-0">
+                    <button type="submit" className="bg-green-600 dark:bg-green-700 text-white p-3 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors shrink-0">
                         <PlusIcon />
                     </button>
-                    <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center disabled:bg-purple-300 shrink-0">
+                    <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="bg-purple-600 dark:bg-purple-700 text-white p-3 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors flex items-center justify-center disabled:bg-purple-300 dark:disabled:bg-purple-800 shrink-0">
                         {isAiLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <SparklesIcon />}
                     </button>
                 </form>
@@ -110,9 +110,9 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                 <div className="sm:hidden flex flex-col space-y-4">
                     <div className="flex justify-between items-start">
                         <div>
-                             <p className="font-playfair text-3xl text-[#D48A8A] italic">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
+                             <p className="font-playfair text-3xl text-[#D48A8A] dark:text-[#D48A8A] italic">{new Date().toLocaleDateString('en-US', { weekday: 'long' })}</p>
                         </div>
-                         <button onClick={handleRegularAdd} className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors shrink-0">
+                         <button onClick={handleRegularAdd} className="bg-green-600 dark:bg-green-700 text-white p-3 rounded-lg hover:bg-green-700 dark:hover:bg-green-600 transition-colors shrink-0">
                             <PlusIcon />
                         </button>
                     </div>
@@ -122,16 +122,16 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             placeholder="Type your task title..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                         />
                          <input
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="Add task details..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                         />
-                        <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center disabled:bg-purple-300 shrink-0 gap-2">
+                        <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="w-full bg-purple-600 dark:bg-purple-700 text-white p-3 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition-colors flex items-center justify-center disabled:bg-purple-300 dark:disabled:bg-purple-800 shrink-0 gap-2">
                             {isAiLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <SparklesIcon />}
                             Enhance with AI
                         </button>
@@ -141,8 +141,8 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
             
              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2">
-                     <button className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-lg border border-gray-300 text-sm">By category <ChevronDownIcon /></button>
-                     <button className="flex items-center gap-1 bg-white px-3 py-1.5 rounded-lg border border-gray-300 text-sm">By priority <ChevronDownIcon /></button>
+                     <button className="flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">By category <ChevronDownIcon /></button>
+                     <button className="flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm text-gray-900 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">By priority <ChevronDownIcon /></button>
                 </div>
                  <div className="relative w-full sm:w-auto">
                     <input
@@ -150,9 +150,9 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                         placeholder="Search by name"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full sm:w-auto pl-4 pr-10 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none text-gray-900 placeholder:text-gray-500"
+                        className="w-full sm:w-auto pl-4 pr-10 py-1.5 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 rounded-lg text-sm focus:outline-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 transition-colors"
                     />
-                    <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <SearchIcon className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
                 </div>
             </div>
 
@@ -170,7 +170,7 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
             
             {filteredTasks.length > 4 && tasks.length > 4 && (
                 <div className="text-center">
-                    <button className="bg-white px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Load more</button>
+                    <button className="bg-white dark:bg-gray-800 px-6 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors text-gray-900 dark:text-gray-100">Load more</button>
                 </div>
             )}
         </div>
