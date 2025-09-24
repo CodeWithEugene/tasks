@@ -5,16 +5,29 @@ import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
 import Login from './components/Login';
 
+// Fix for TypeScript errors on window.google property
+declare global {
+    interface Window {
+        google: any;
+    }
+}
+
 const initialTasks: Task[] = [
     { id: '1', title: 'Learn Javascript', description: 'Master the language powering the modern web.', startDate: '2023-07-07', completed: false, priority: Priority.HIGH, category: Category.LEARNING },
     { id: '2', title: 'Learn React', description: 'Build interactive UIs with the popular library.', startDate: '2023-07-08', completed: false, priority: Priority.HIGH, category: Category.LEARNING },
-    { id: '3', title: 'Build a project', description: 'Apply skills to create a real-world app.', startDate: '2023-07-09', completed: true, priority: Priority.MEDIUM, category: Category.WORK },
-    { id: '4', title: 'Go for a run', description: 'Morning jog in the park for 30 minutes.', startDate: '2023-07-10', completed: true, priority: Priority.LOW, category: Category.PERSONAL },
+    { id: '3', title: 'Build a project', description: 'Apply skills to create a real-world app.', startDate: new Date().toISOString().split('T')[0], completed: true, priority: Priority.MEDIUM, category: Category.WORK },
+    { id: '4', title: 'Go for a run', description: 'Morning jog in the park for 30 minutes.', startDate: new Date().toISOString().split('T')[0], completed: true, priority: Priority.LOW, category: Category.PERSONAL },
 ];
+
+interface User {
+    name: string;
+    picture: string;
+    email: string;
+}
 
 const App: React.FC = () => {
     const [tasks, setTasks] = useState<Task[]>(initialTasks);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
 
     const stats = useMemo(() => {
         const completed = tasks.filter(task => task.completed).length;
@@ -47,23 +60,27 @@ const App: React.FC = () => {
         setTasks(tasks.map(task => task.id === taskId ? { ...task, completed: !task.completed } : task));
     };
 
-    const handleSignIn = () => {
-        setIsAuthenticated(true);
+    const handleSignIn = (userData: User) => {
+        setUser(userData);
     };
 
     const handleSignOut = () => {
-        setIsAuthenticated(false);
+        if (typeof window.google !== 'undefined' && window.google.accounts) {
+            window.google.accounts.id.disableAutoSelect();
+        }
+        setUser(null);
     };
     
-    if (!isAuthenticated) {
+    if (!user) {
         return <Login onSignIn={handleSignIn} />;
     }
     
     return (
         <div className="min-h-screen bg-[#FBF9F6] text-[#3D3D3D] flex flex-col">
-            <Header onSignOut={handleSignOut} />
+            <Header user={user} onSignOut={handleSignOut} />
             <main className="flex-grow container mx-auto px-4 py-8">
                 <Dashboard 
+                    user={user}
                     tasks={tasks}
                     stats={stats}
                     onAddTask={handleAddTask}

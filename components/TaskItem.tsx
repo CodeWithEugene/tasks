@@ -26,13 +26,13 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdateTask, onDeleteTask, o
                     type="text"
                     value={editedTitle}
                     onChange={(e) => setEditedTitle(e.target.value)}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg text-lg font-bold bg-white focus:outline-none focus:ring-1 focus:ring-[#D48A8A]"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg text-lg font-bold bg-white focus:outline-none focus:ring-1 focus:ring-[#D48A8A] text-gray-900"
                     aria-label="Edit task title"
                 />
                 <textarea
                     value={editedDescription}
                     onChange={(e) => setEditedDescription(e.target.value)}
-                    className="w-full px-3 py-1 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#D48A8A]"
+                    className="w-full px-3 py-1 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-1 focus:ring-[#D48A8A] text-gray-900"
                     rows={2}
                     aria-label="Edit task description"
                 />

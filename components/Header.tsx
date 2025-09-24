@@ -2,10 +2,11 @@ import React from 'react';
 import { LogoIcon } from './icons';
 
 interface HeaderProps {
+    user: { name: string; picture: string; };
     onSignOut: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
+const Header: React.FC<HeaderProps> = ({ user, onSignOut }) => {
     return (
         <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,9 +18,10 @@ const Header: React.FC<HeaderProps> = ({ onSignOut }) => {
                     <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
                             <img 
-                                src="https://picsum.photos/id/237/100/100" 
-                                alt="User Avatar"
+                                src={user.picture} 
+                                alt={user.name}
                                 className="w-full h-full object-cover"
+                                referrerPolicy="no-referrer"
                             />
                         </div>
                          <button 
