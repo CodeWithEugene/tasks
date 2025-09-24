@@ -3,14 +3,15 @@ import { Task } from '../types';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-if (!API_KEY) {
-  throw new Error("Missing Gemini API Key. Please set the VITE_API_KEY environment variable.");
-}
-
-const genAI = new GoogleGenerativeAI(API_KEY);
+// Make AI usage optional so the app doesn't crash without a key
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 export const generateTaskFromPrompt = async (prompt: string): Promise<Partial<Omit<Task, 'id' | 'completed'>>> => {
     try {
+        if (!genAI) {
+            // Fallback: return a minimal task using the prompt as title
+            return { title: prompt };
+        }
         const model = genAI.getGenerativeModel({
             model: "gemini-1.5-flash",
             generationConfig: {

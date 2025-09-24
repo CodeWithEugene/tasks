@@ -60,7 +60,10 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
 
         if (selectedDate) {
             const dateString = selectedDate.toISOString().split('T')[0];
-            tasksToFilter = tasksToFilter.filter(task => task.startDate === dateString);
+            tasksToFilter = tasksToFilter.filter(task => {
+                if (task.deadline) return task.deadline.startsWith(dateString);
+                return task.startDate === dateString;
+            });
         }
         
         if (searchTerm) {

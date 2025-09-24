@@ -52,6 +52,9 @@ const TaskItem: React.FC<TaskItemProps> = ({ task, onUpdateTask, onDeleteTask, o
                 <h3 className={`font-bold text-lg text-gray-800 ${task.completed ? 'line-through' : ''}`}>{task.title}</h3>
                 <p className={`text-sm text-gray-600 mt-1 ${task.completed ? 'line-through' : ''}`}>{task.description}</p>
                 <p className="text-xs text-gray-500 mt-3">Start date : {task.startDate}</p>
+                {task.deadline && (
+                    <p className="text-xs text-gray-500 mt-1">Deadline : {task.deadline}</p>
+                )}
             </div>
             <div className="flex flex-col items-center space-y-2 ml-4 shrink-0">
                 <button onClick={() => onToggleComplete(task.id)} className="text-gray-500 hover:text-green-600" aria-label="Toggle complete">
