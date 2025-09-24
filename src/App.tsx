@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Task } from './types';
 import Login from './components/Login';
 import Header from './components/Header';
