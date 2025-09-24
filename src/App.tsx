@@ -8,6 +8,7 @@ import Footer from './components/Footer';
 declare global {
     interface Window {
         google: any;
+        onGoogleLibraryLoad: () => void;
     }
 }
 

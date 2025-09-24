@@ -25,30 +25,40 @@ const Login: React.FC<LoginProps> = ({ onSignIn }) => {
     console.log('Login component rendered');
 
     useEffect(() => {
-        if (typeof window.google === 'undefined' || !window.google.accounts) {
-            console.error("Google Identity Services script not loaded.");
-            return;
-        }
-
-        window.google.accounts.id.initialize({
-            client_id: "747734163255-nfalk29n5oepib3egbighspdtlusb0p7.apps.googleusercontent.com",
-            callback: (response: any) => {
-                const userData = decodeJwtResponse(response.credential);
-                if (userData) {
-                    onSignIn({
-                        name: userData.name,
-                        picture: userData.picture,
-                        email: userData.email
-                    });
-                }
+        const initializeGoogleSignIn = () => {
+            if (typeof window.google === 'undefined' || !window.google.accounts) {
+                // If the script isn't loaded, do nothing. The script's onload callback will trigger initialization.
+                return;
             }
-        });
 
-        if (googleButtonRef.current) {
-            window.google.accounts.id.renderButton(
-                googleButtonRef.current,
-                { theme: "outline", size: "large", type: 'standard', text: 'signin_with', shape: 'pill' }
-            );
+            window.google.accounts.id.initialize({
+                client_id: "747734163255-nfalk29n5oepib3egbighspdtlusb0p7.apps.googleusercontent.com",
+                callback: (response: any) => {
+                    const userData = decodeJwtResponse(response.credential);
+                    if (userData) {
+                        onSignIn({
+                            name: userData.name,
+                            picture: userData.picture,
+                            email: userData.email
+                        });
+                    }
+                }
+            });
+
+            if (googleButtonRef.current) {
+                window.google.accounts.id.renderButton(
+                    googleButtonRef.current,
+                    { theme: "outline", size: "large", type: 'standard', text: 'signin_with', shape: 'pill' }
+                );
+            }
+        };
+
+        // Set a global callback that the Google script will call upon loading
+        window.onGoogleLibraryLoad = initializeGoogleSignIn;
+
+        // If the script is already loaded (e.g., on a refresh or subsequent navigation), initialize immediately
+        if (typeof window.google !== 'undefined' && window.google.accounts) {
+            initializeGoogleSignIn();
         }
 
     }, [onSignIn]);
