@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Task, Priority, Category } from '../types';
 import TaskItem from './TaskItem';
 import { SearchIcon, ChevronDownIcon, PlusIcon, SparklesIcon } from './icons';
-import { generateTaskFromPrompt } from '../services/geminiService';
+import { generateTaskFromPrompt, rewriteTaskWithAI } from '../services/geminiService';
 
 interface TaskPanelProps {
     tasks: Task[];
@@ -23,15 +23,17 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
         if (!title.trim()) return;
         setIsAiLoading(true);
         try {
-            const parsedTask = await generateTaskFromPrompt(title);
+            const rewrittenTask = await rewriteTaskWithAI(title, description);
+            // Create and add the enhanced task
             const newTask = {
-                title: parsedTask.title || title,
-                description: parsedTask.description || description,
-                startDate: parsedTask.startDate || new Date().toISOString().split('T')[0],
-                priority: parsedTask.priority || Priority.MEDIUM,
-                category: parsedTask.category || Category.PERSONAL,
+                title: rewrittenTask.title,
+                description: rewrittenTask.description,
+                startDate: new Date().toISOString().split('T')[0],
+                priority: Priority.MEDIUM,
+                category: Category.PERSONAL,
             };
             onAddTask(newTask);
+            // Clear the input fields
             setTitle('');
             setDescription('');
         } catch (error) {
@@ -86,14 +88,14 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Type Title of Your Task or use AI ✨"
+                        placeholder="Type your task title and use AI to improve it ✨"
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
                     />
                     <input
                         type="text"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Detail of Your Task"
+                        placeholder="Add task details (AI will enhance both title and description)"
                         className="w-full hidden md:block px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
                     />
                     <button type="submit" className="bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition-colors shrink-0">
@@ -119,19 +121,19 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Type a new task..."
+                            placeholder="Type your task title..."
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
                         />
                          <input
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Add a description..."
+                            placeholder="Add task details..."
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D48A8A] text-gray-900 placeholder:text-gray-500"
                         />
                         <button type="button" onClick={handleSmartAdd} disabled={isAiLoading} className="w-full bg-purple-600 text-white p-3 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center disabled:bg-purple-300 shrink-0 gap-2">
                             {isAiLoading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <SparklesIcon />}
-                            Add with AI
+                            Enhance with AI
                         </button>
                     </form>
                 </div>

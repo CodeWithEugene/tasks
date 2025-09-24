@@ -44,3 +44,46 @@ export const generateTaskFromPrompt = async (prompt: string): Promise<Partial<Om
         throw new Error("Failed to understand the task. Please try again.");
     }
 };
+
+export const rewriteTaskWithAI = async (title: string, description: string): Promise<{title: string, description: string}> => {
+    try {
+        if (!genAI) {
+            // Fallback: return the original text if no API key
+            return { title, description };
+        }
+        
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash",
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: SchemaType.OBJECT,
+                    properties: {
+                        title: { type: SchemaType.STRING, description: 'A clear, concise, and well-formatted task title.' },
+                        description: { type: SchemaType.STRING, description: 'A detailed, clear, and actionable task description.' }
+                    },
+                },
+            }
+        });
+
+        const result = await model.generateContent(
+            `Rewrite the following task title and description to be clearer and more concise. Make the title specific and actionable, and the description should be exactly one sentence that is short and straight to the point.
+
+            Original title: "${title}"
+            Original description: "${description}"
+
+            Please provide:
+            - A clear, concise, and specific title
+            - A one-sentence description that is short and straight to the point`
+        );
+        
+        const response = result.response;
+        const jsonString = response.text().trim();
+        const parsedObject = JSON.parse(jsonString);
+        return parsedObject as {title: string, description: string};
+
+    } catch (error) {
+        console.error("Error rewriting task with AI:", error);
+        throw new Error("Failed to rewrite the task. Please try again.");
+    }
+};
