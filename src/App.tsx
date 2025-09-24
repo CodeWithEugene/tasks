@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Task } from './types';
 import Login from './components/Login';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Dashboard from './components/Dashboard';
+import { saveTasksToCloud, loadTasksFromCloud } from './services/cloudStorage';
 
 // Fix for TypeScript errors on window.google property
 declare global {
@@ -68,6 +69,10 @@ const App: React.FC = () => {
             } catch (error) {
                 console.error('Error saving tasks to localStorage:', error);
             }
+            // Save to cloud if user is logged in
+            if (user) {
+                saveTasksToCloud(user.email, updatedTasks);
+            }
             return updatedTasks;
         });
     };
@@ -85,6 +90,10 @@ const App: React.FC = () => {
             } catch (error) {
                 console.error('Error saving tasks to localStorage:', error);
             }
+            // Save to cloud if user is logged in
+            if (user) {
+                saveTasksToCloud(user.email, updatedTasks);
+            }
             return updatedTasks;
         });
     };
@@ -98,17 +107,33 @@ const App: React.FC = () => {
             } catch (error) {
                 console.error('Error saving tasks to localStorage:', error);
             }
+            // Save to cloud if user is logged in
+            if (user) {
+                saveTasksToCloud(user.email, updatedTasks);
+            }
             return updatedTasks;
         });
     };
 
-    const handleSignIn = (userData: User) => {
+    const handleSignIn = async (userData: User) => {
         setUser(userData);
         // Save user to localStorage
         try {
             localStorage.setItem('user', JSON.stringify(userData));
         } catch (error) {
             console.error('Error saving user to localStorage:', error);
+        }
+
+        // Load tasks from cloud storage
+        try {
+            const cloudTasks = await loadTasksFromCloud(userData.email);
+            if (cloudTasks !== null) {
+                setTasks(cloudTasks);
+                // Update localStorage with cloud data
+                localStorage.setItem('tasks', JSON.stringify(cloudTasks));
+            }
+        } catch (error) {
+            console.error('Error loading tasks from cloud:', error);
         }
     };
 
@@ -146,6 +171,10 @@ const App: React.FC = () => {
                                 localStorage.setItem('tasks', JSON.stringify(updatedTasks));
                             } catch (error) {
                                 console.error('Error saving tasks to localStorage:', error);
+                            }
+                            // Save to cloud if user is logged in
+                            if (user) {
+                                saveTasksToCloud(user.email, updatedTasks);
                             }
                             return updatedTasks;
                         });
