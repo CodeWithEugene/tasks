@@ -18,7 +18,8 @@ const getUserBinId = (email: string): string => {
         hash = ((hash << 5) - hash) + char;
         hash = hash & hash; // Convert to 32-bit integer
     }
-    return `tasks-${Math.abs(hash).toString(36)}`;
+    // Use a more compatible format for JSONBin.io
+    return `tasks-${Math.abs(hash).toString(36)}-${email.split('@')[0]}`;
 };
 
 export const saveTasksToCloud = async (email: string, tasks: Task[]): Promise<boolean> => {
@@ -33,6 +34,7 @@ export const saveTasksToCloud = async (email: string, tasks: Task[]): Promise<bo
 
     try {
         const binId = getUserBinId(email);
+        console.log('Saving to bin ID:', binId);
         const data: CloudTaskData = {
             tasks,
             lastUpdated: new Date().toISOString()
@@ -49,10 +51,13 @@ export const saveTasksToCloud = async (email: string, tasks: Task[]): Promise<bo
         });
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', response.status, errorText);
             throw new Error(`Failed to save tasks: ${response.statusText}`);
         }
 
-        console.log('Tasks saved to cloud successfully');
+        const result = await response.json();
+        console.log('Tasks saved to cloud successfully:', result);
         return true;
     } catch (error) {
         console.error('Error saving tasks to cloud:', error);
@@ -68,6 +73,7 @@ export const loadTasksFromCloud = async (email: string): Promise<Task[] | null> 
 
     try {
         const binId = getUserBinId(email);
+        console.log('Loading from bin ID:', binId);
         const response = await fetch(`${JSONBIN_API_URL}/${binId}/latest`, {
             method: 'GET',
             headers: {
@@ -76,18 +82,35 @@ export const loadTasksFromCloud = async (email: string): Promise<Task[] | null> 
         });
 
         if (response.status === 404) {
-            // No data exists yet for this user
+            console.log('No data exists yet for this user, creating new bin');
+            // Try to create a new bin first
+            const createResponse = await fetch(JSONBIN_API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Master-Key': JSONBIN_API_KEY,
+                    'X-Bin-Name': `Tasks for ${email}`
+                },
+                body: JSON.stringify({ tasks: [], lastUpdated: new Date().toISOString() })
+            });
+            
+            if (createResponse.ok) {
+                console.log('Created new bin for user');
+                return [];
+            }
             return [];
         }
 
         if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Error:', response.status, errorText);
             throw new Error(`Failed to load tasks: ${response.statusText}`);
         }
 
         const result = await response.json();
         const data: CloudTaskData = result.record;
         
-        console.log('Tasks loaded from cloud successfully');
+        console.log('Tasks loaded from cloud successfully:', data.tasks?.length || 0, 'tasks');
         return data.tasks || [];
     } catch (error) {
         console.error('Error loading tasks from cloud:', error);
