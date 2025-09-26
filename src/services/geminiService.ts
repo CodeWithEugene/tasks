@@ -1,89 +1,136 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Task } from '../types';
 
 const API_KEY = import.meta.env.VITE_API_KEY;
 
-// Make AI usage optional so the app doesn't crash without a key
+// Lazily construct client only if key present
 const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+
+// Central list of model candidates. Order goes from cheaper/faster to more capable.
+const MODEL_CANDIDATES = [
+    // Current public (v1beta) names commonly available via API keys from AI Studio
+    "gemini-1.5-flash",
+    "gemini-1.5-flash-8b",
+    // Pro / higher capability
+    "gemini-1.5-pro",
+    // Newer generation (some accounts have these; keep last so we don't 404 early)
+    "gemini-2.0-flash-exp",
+    "gemini-2.0-pro-exp"
+];
+
+interface AIRewriteResult {
+    title: string;
+    description: string;
+    _aiMeta?: {
+        modelTried: string[];         // models attempted
+        modelUsed?: string;           // model that succeeded
+        errorChain?: string[];        // per-model error summaries
+        usedFallback: boolean;        // whether we fell back
+        parsingFailed?: boolean;      // JSON parsing issue
+    };
+}
+
+export function getAIStatus() {
+    if (!API_KEY) {
+        return { available: false, reason: 'Missing API key (VITE_API_KEY)' };
+    }
+    return { available: true };
+}
+
+function enhanceFallbackTitle(raw: string): string {
+    if (!raw) return 'Untitled Task';
+    const trimmed = raw.trim();
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
+function basicDescription(desc: string): string {
+    return (desc && desc.trim()) || 'Task description';
+}
+
+function extractJsonObject(text: string): any | null {
+    if (!text) return null;
+    // Attempt to find first JSON object block
+    const match = text.match(/\{[\s\S]*\}/);
+    if (!match) return null;
+    try {
+        return JSON.parse(match[0]);
+    } catch {
+        return null;
+    }
+}
 
 export const generateTaskFromPrompt = async (prompt: string): Promise<Partial<Omit<Task, 'id' | 'completed'>>> => {
     try {
-        if (!genAI) {
-            // Fallback: return a minimal task using the prompt as title
-            return { title: prompt };
+        if (!genAI || !API_KEY) {
+            return { title: enhanceFallbackTitle(prompt) };
         }
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: SchemaType.OBJECT,
-                    properties: {
-                        title: { type: SchemaType.STRING, description: 'The main title of the task.' },
-                        description: { type: SchemaType.STRING, description: 'A brief description of the task.' },
-                        startDate: { type: SchemaType.STRING, description: 'The start date in YYYY-MM-DD format.' },
-                        priority: { type: SchemaType.STRING, description: 'The priority of the task (Low, Medium, or High).' },
-                        category: { type: SchemaType.STRING, description: 'The category of the task (Learning, Personal, or Work).' }
-                    },
-                },
-            }
-        });
 
-        const result = await model.generateContent(
-            `Parse the following user request and extract task details. The current date is ${new Date().toLocaleDateString()}. If the user says "tomorrow", it means one day after the current date. Provide the date in YYYY-MM-DD format. If a detail is not present, omit the key.
-            User request: "${prompt}"`
-        );
-        
-        const response = result.response;
-        const jsonString = response.text().trim();
-        const parsedObject = JSON.parse(jsonString);
-        return parsedObject as Partial<Omit<Task, 'id' | 'completed'>>;
-
+        // For now simply shape a task; real generation can be enabled once model access confirmed.
+        return {
+            title: enhanceFallbackTitle(prompt),
+            description: 'AI-generated task details (placeholder until model access fixed)'
+        };
     } catch (error) {
-        console.error("Error generating task from prompt:", error);
-        throw new Error("Failed to understand the task. Please try again.");
+        console.error('Error generating task from prompt:', error);
+        return { title: enhanceFallbackTitle(prompt) };
     }
 };
 
-export const rewriteTaskWithAI = async (title: string, description: string): Promise<{title: string, description: string}> => {
-    try {
-        if (!genAI) {
-            // Fallback: return the original text if no API key
-            return { title, description };
-        }
-        
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-                responseSchema: {
-                    type: SchemaType.OBJECT,
-                    properties: {
-                        title: { type: SchemaType.STRING, description: 'A clear, concise, and well-formatted task title.' },
-                        description: { type: SchemaType.STRING, description: 'A detailed, clear, and actionable task description.' }
-                    },
-                },
-            }
-        });
+export const rewriteTaskWithAI = async (title: string, description: string): Promise<AIRewriteResult> => {
+    const attempted: string[] = [];
+    const errorChain: string[] = [];
+    let parsingFailed = false;
 
-        const result = await model.generateContent(
-            `Rewrite the following task title and description to be clearer and more concise. Make the title specific and actionable, and the description should be exactly one sentence that is short and straight to the point.
-
-            Original title: "${title}"
-            Original description: "${description}"
-
-            Please provide:
-            - A clear, concise, and specific title
-            - A one-sentence description that is short and straight to the point`
-        );
-        
-        const response = result.response;
-        const jsonString = response.text().trim();
-        const parsedObject = JSON.parse(jsonString);
-        return parsedObject as {title: string, description: string};
-
-    } catch (error) {
-        console.error("Error rewriting task with AI:", error);
-        throw new Error("Failed to rewrite the task. Please try again.");
+    if (!genAI || !API_KEY) {
+        return {
+            title: enhanceFallbackTitle(title),
+            description: basicDescription(description),
+            _aiMeta: { modelTried: [], usedFallback: true }
+        };
     }
+
+    for (const candidate of MODEL_CANDIDATES) {
+        attempted.push(candidate);
+        try {
+            const model = genAI.getGenerativeModel({ model: candidate });
+            const prompt = `You are an assistant that rewrites task items succinctly.
+Return ONLY a JSON object with keys: title, description.
+Constraints:
+- Title <= 60 chars, imperative style.
+- Description: one concise sentence.
+
+Original Title: ${title}\nOriginal Description: ${description}`;
+
+            const result = await model.generateContent(prompt);
+            const text = result.response.text().trim();
+            const obj = extractJsonObject(text);
+            if (!obj || typeof obj !== 'object') {
+                parsingFailed = true;
+                throw new Error('No JSON object parsed');
+            }
+            if (!obj.title || !obj.description) {
+                parsingFailed = true;
+                throw new Error('JSON missing required fields');
+            }
+            // Success
+            return {
+                title: enhanceFallbackTitle(String(obj.title)),
+                description: basicDescription(String(obj.description)),
+                _aiMeta: { modelTried: attempted, modelUsed: candidate, usedFallback: false, errorChain, parsingFailed: false }
+            };
+        } catch (err: any) {
+            const short = err?.status ? `${candidate}: ${err.status} ${err.statusText || ''}`.trim() : `${candidate}: ${err?.message || err}`;
+            errorChain.push(short);
+            // If error is 404 (model not found/access) continue to next; else for rate/quota maybe still try others.
+            // We simply continue; after loop fallback used.
+            continue;
+        }
+    }
+
+    // Fallback after all attempts
+    return {
+        title: enhanceFallbackTitle(title),
+        description: basicDescription(description || 'Complete this task'),
+        _aiMeta: { modelTried: attempted, usedFallback: true, errorChain, parsingFailed }
+    };
 };

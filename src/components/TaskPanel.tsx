@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Task, Priority, Category } from '../types';
 import TaskItem from './TaskItem';
 import { SearchIcon, PlusIcon, SparklesIcon } from './icons';
-import { rewriteTaskWithAI } from '../services/geminiService';
+import { rewriteTaskWithAI, getAIStatus } from '../services/geminiService';
 
 interface TaskPanelProps {
     tasks: Task[];
@@ -22,6 +22,7 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
         // Default to today's date in YYYY-MM-DD format
         return new Date().toISOString().split('T')[0];
     });
+    const aiStatus = getAIStatus();
 
     // Get the effective selected date (from calendar or mobile picker)
     const getEffectiveSelectedDate = (): Date => {
@@ -109,6 +110,12 @@ const TaskPanel: React.FC<TaskPanelProps> = ({ tasks, selectedDate, onAddTask, o
                     })}</span>
                 </p>
             </div>
+                        {!aiStatus.available && (
+                            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 text-amber-800 dark:text-amber-200 rounded-lg p-3 text-sm flex items-start gap-2">
+                                <span>⚠️</span>
+                                <span><strong>AI disabled:</strong> {aiStatus.reason}. Tasks will be added without AI enhancement.</span>
+                            </div>
+                        )}
             
              {/* Task Creation UI */}
             <div className="space-y-4">
